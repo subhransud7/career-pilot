@@ -1,0 +1,35 @@
+<div class="card p-3">
+    <h4>{{ lead.company }} - {{ lead.role }}</h4>
+
+    <p><strong>Experience:</strong> {{ lead.experience }}</p>
+    <p><strong>Seniority:</strong> {{ lead.seniority }}</p>
+    <p><strong>Location:</strong> {{ lead.location }}</p>
+    <p><strong>Email:</strong> {{ lead.email }}</p>
+
+    <hr>
+
+    <h5>Email Draft</h5>
+    <pre>{{ lead.email_body }}</pre>
+
+    <h5>LinkedIn Message</h5>
+    <pre>{{ lead.linkedin_message }}</pre>
+
+    <a href="{{ lead.post_link }}" target="_blank" class="btn btn-sm btn-outline-primary">View Post</a>
+</div>
+
+
+<hr>
+
+<form method="post" action="/lead/{{ lead.id }}/update-state">
+    <select name="new_state" class="form-select mb-2">
+        <option>NEW</option>
+        <option>IN_REVIEW</option>
+        <option>APPROVED</option>
+        <option>REJECTED</option>
+        <option>MAILED</option>
+        <option>WAITING_RESPONSE</option>
+        <option>RESPONDED</option>
+        <option>ARCHIVED</option>
+    </select>
+    <button class="btn btn-primary btn-sm">Update State</button>
+</form>

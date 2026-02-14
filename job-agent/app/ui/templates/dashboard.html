@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Dashboard</h2>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card p-3">
+            <h5>Total Leads</h5>
+            <h3>{{ total }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3">
+            <h5>New</h5>
+            <h3>{{ new }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3">
+            <h5>Mailed</h5>
+            <h3>{{ mailed }}</h3>
+        </div>
+    </div>
+</div>
+
+<a href="/review" class="btn btn-primary mt-4">Review Leads</a>
+
+{% endblock %}
