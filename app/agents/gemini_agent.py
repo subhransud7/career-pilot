@@ -1,13 +1,13 @@
 import os
 import json
-import google.generativeai as genai
+from google import genai
 from .base_agent import BaseAgent
 
 class GeminiAgent(BaseAgent):
 
     def __init__(self):
-        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-        self.model = genai.GenerativeModel("gemini-1.5-flash")
+        self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+        self.model = "gemini-1.5-flash"
 
     def execute(self, task_name: str, payload: dict) -> dict:
 
@@ -23,7 +23,10 @@ class GeminiAgent(BaseAgent):
         {payload["expected_output_schema"]}
         """
 
-        response = self.model.generate_content(prompt)
+        response = self.client.models.generate_content(
+            model=self.model,
+            contents=prompt
+        )
 
         text = response.text.strip()
 
@@ -31,4 +34,3 @@ class GeminiAgent(BaseAgent):
             return json.loads(text)
         except:
             raise Exception("Gemini returned invalid JSON")
-

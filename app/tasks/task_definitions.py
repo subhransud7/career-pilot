@@ -1,3 +1,10 @@
+from app.schemas.task_models import (
+    AnalyzePostModel,
+    ScoreJobModel,
+    EmailModel,
+    LinkedInMessageModel
+)
+
 TASK_DEFINITIONS = {
 
     "analyze_post": {
@@ -38,3 +45,11 @@ TASK_DEFINITIONS = {
         }
     }
 }
+
+TASK_VALIDATORS = {
+    "analyze_post": AnalyzePostModel,
+    "score_job": ScoreJobModel,
+    "generate_email": EmailModel,
+    "generate_linkedin_message": LinkedInMessageModel
+}
+

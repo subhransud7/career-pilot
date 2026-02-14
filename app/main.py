@@ -98,3 +98,37 @@ def aggregate(
     results = aggregator.run(keywords, days, max_results)
 
     return {"processed": len(results)}
+
+from app.services.email_service import EmailService
+
+@app.post("/lead/{lead_id}/send-email")
+def send_email(lead_id: int, db: Session = Depends(get_db)):
+
+    lead = db.query(Lead).filter(Lead.id == lead_id).first()
+
+    if not lead or not lead.email:
+        return {"error": "Invalid lead"}
+
+    email_service = EmailService()
+    email_service.send_email(
+        to_email=lead.email,
+        subject=lead.email_subject,
+        body=lead.email_body
+    )
+
+    lead.state = "MAILED"
+    db.commit()
+
+    return {"status": "sent"}
+
+from app.services.sheets_service import SheetsService
+
+@app.post("/export-approved")
+def export_approved(db: Session = Depends(get_db)):
+
+    leads = db.query(Lead).filter(Lead.state == "APPROVED").all()
+
+    service = SheetsService()
+    service.export_leads("Job Agent Export", leads)
+
+    return {"exported": len(leads)}

@@ -2,6 +2,7 @@ from app.config import SYSTEM_PRIMARY_AGENT, SYSTEM_FALLBACK_AGENT, TASK_CONFIG
 from .openai_agent import OpenAIAgent
 from .gemini_agent import GeminiAgent
 from app.tasks.task_definitions import TASK_DEFINITIONS
+from app.tasks.task_definitions import TASK_VALIDATORS
 
 class AgentRouter:
 
@@ -37,6 +38,9 @@ class AgentRouter:
 
         try:
             result = self.agents[primary].execute(task_name, enriched_payload)
+            validator = TASK_VALIDATORS.get(task_name)
+            if validator:
+                result = validator(**result).model_dump() 
             return result, primary
 
         except Exception as e:

@@ -6,7 +6,12 @@ python-dotenv
 httpx
 python-multipart
 openai
-google-generativeai
 beautifulsoup4
 pydantic
+google-api-python-client
+google-auth
+google-auth-oauthlib
+gspread
+oauth2client
+google-genai
 
