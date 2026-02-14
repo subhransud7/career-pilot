@@ -12,16 +12,23 @@ class GeminiAgent(BaseAgent):
     def execute(self, task_name: str, payload: dict) -> dict:
 
         prompt = f"""
-        You are responsible for task: {task_name}.
-        Return JSON only.
+        You are an AI agent performing task: {task_name}.
+        Return strictly valid JSON only.
+        Do not include explanations.
 
         Input:
-        {json.dumps(payload)}
+        {payload["input"]}
+
+        Expected JSON schema:
+        {payload["expected_output_schema"]}
         """
 
         response = self.model.generate_content(prompt)
 
+        text = response.text.strip()
+
         try:
-            return json.loads(response.text)
+            return json.loads(text)
         except:
             raise Exception("Gemini returned invalid JSON")
+

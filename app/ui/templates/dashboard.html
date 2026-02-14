@@ -28,4 +28,20 @@
 
 <a href="/review" class="btn btn-primary mt-4">Review Leads</a>
 
+<hr>
+<h4>Run Aggregation</h4>
+
+<form method="post" action="/aggregate">
+    <input type="text" name="keywords" placeholder="Keywords"
+           class="form-control mb-2" required>
+
+    <input type="number" name="days" value="7"
+           class="form-control mb-2" required>
+
+    <input type="number" name="max_results" value="10"
+           class="form-control mb-2">
+
+    <button class="btn btn-success">Run</button>
+</form>
+
 {% endblock %}

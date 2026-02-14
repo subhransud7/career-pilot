@@ -11,8 +11,20 @@ class OpenAIAgent(BaseAgent):
 
     def execute(self, task_name: str, payload: dict) -> dict:
 
-        system_prompt = f"You are responsible for task: {task_name}. Return JSON only."
-        user_prompt = json.dumps(payload)
+        system_prompt = f"""
+        You are an AI agent performing task: {task_name}.
+        You MUST return strictly valid JSON.
+        Do not include explanations.
+        Do not include markdown.
+        """
+
+        user_prompt = f"""
+        Input:
+        {payload["input"]}
+
+        Expected JSON schema:
+        {payload["expected_output_schema"]}
+        """
 
         response = self.client.chat.completions.create(
             model=self.model,
@@ -23,9 +35,10 @@ class OpenAIAgent(BaseAgent):
             temperature=0
         )
 
-        content = response.choices[0].message.content
+        content = response.choices[0].message.content.strip()
 
         try:
             return json.loads(content)
         except:
             raise Exception("OpenAI returned invalid JSON")
+
