@@ -52,7 +52,7 @@ def dashboard(request: Request, db: Session = Depends(get_db_session)):
 
 
 @router.post("/run-search", response_class=HTMLResponse)
-def run_search(
+async def run_search(
     request: Request,
     keywords: str = Form(...),
     days: int = Form(...),
@@ -62,7 +62,7 @@ def run_search(
     processor = build_processor(db)
     # deterministic input expansion: fetch 2N, processor handles dedupe + threshold
     links = SearchService().search_linkedin_posts(keywords, days, max_results * 2)
-    results = processor.process_links(links[: max_results * 2], "SEARCH")
+    results = await processor.process_links(links[: max_results * 2], "SEARCH")
     accepted = sum(1 for r in results if r.get("accepted"))
     skipped = sum(1 for r in results if r.get("status") == "skipped")
 
@@ -110,7 +110,7 @@ async def upload_csv(
 
     links = parse_links_csv(content)
     processor = build_processor(db)
-    results = processor.process_links(links, "CSV", csv_date=extracted_date)
+    results = await processor.process_links(links, "CSV", csv_date=extracted_date)
     accepted = sum(1 for r in results if r.get("accepted"))
     skipped = sum(1 for r in results if r.get("status") == "skipped")
 

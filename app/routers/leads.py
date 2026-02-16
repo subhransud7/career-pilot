@@ -76,6 +76,8 @@ def edit_lead(
     lead_id: int,
     company: str = Form(default=""),
     email: str = Form(default=""),
+    role: str = Form(default=""),
+    recruiter: str = Form(default=""),
     db: Session = Depends(get_db_session),
 ):
     lead = LeadsRepository(db).get(lead_id)
@@ -84,6 +86,8 @@ def edit_lead(
 
     lead.company = company.strip() or None
     lead.email = email.strip() or None
+    lead.role = role.strip() or None
+    lead.recruiter = recruiter.strip() or None
     db.commit()
     return HTMLResponse("<div class='alert alert-success'>Lead updated</div>")
 
@@ -136,3 +140,36 @@ def bulk_send(db: Session = Depends(get_db_session)):
 
     db.commit()
     return HTMLResponse(f"<div class='alert alert-info'>Bulk mail done. Sent={sent}, Failed={failed}</div>")
+
+
+@router.post("/{lead_id}/delete", response_class=HTMLResponse)
+def delete_lead(lead_id: int, db: Session = Depends(get_db_session)):
+    lead = LeadsRepository(db).get(lead_id)
+    if not lead:
+        return HTMLResponse("<div class='alert alert-danger'>Lead not found</div>", status_code=404)
+
+    db.delete(lead)
+    db.commit()
+
+    return HTMLResponse("")
+
+
+@router.post("/bulk-delete", response_class=HTMLResponse)
+async def bulk_delete(request: Request, db: Session = Depends(get_db_session)):
+    form = await request.form()
+    ids = form.getlist("lead_ids")
+
+    if not ids:
+        return HTMLResponse("<div class='alert alert-warning'>No leads selected</div>")
+
+    for lead_id in ids:
+        lead = LeadsRepository(db).get(int(lead_id))
+        if lead:
+            db.delete(lead)
+
+    db.commit()
+
+    return HTMLResponse(
+        "",
+        headers={"HX-Redirect": "/leads"}
+    )

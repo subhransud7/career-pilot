@@ -19,6 +19,7 @@ class Lead(Base):
     company = Column(String)
     recruiter = Column(String)
     email = Column(String)
+    keywords = Column(String)
     date_posted = Column(String)
     score = Column(Integer)
     state = Column(String, nullable=False, default="IN_REVIEW")

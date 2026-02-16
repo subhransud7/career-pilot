@@ -17,7 +17,7 @@ class IngestionService:
         self.visited_repo = VisitedLinksRepository(db)
         self.leads_repo = LeadsRepository(db)
 
-    def process_single_link(self, link: str, source_type: str, csv_date: str | None = None) -> dict:
+    async def process_single_link(self, link: str, source_type: str, csv_date: str | None = None) -> dict:
         normalized = normalize_link(link)
         link_hash = hash_link(normalized)
 
@@ -42,10 +42,10 @@ class IngestionService:
 
             self.logger.run(f"processing_link source={source_type} url={normalized}")
 
-            raw_post = self.fetch_service.fetch(normalized)
+            raw_post = await self.fetch_service.fetch(normalized)
             analysis = self.analysis_service.analyze_post(raw_post)
             score = int(analysis.get("score", 0))
-            accepted = score >= 25
+            accepted = score >= 5
 
             self.logger.llm({
                 "url": normalized,
@@ -88,6 +88,7 @@ class IngestionService:
                     company=analysis.get("company"),
                     recruiter=analysis.get("recruiter"),
                     email=analysis.get("email"),
+                    keywords=analysis.get("keywords"),
                     date_posted=csv_date,
                     score=score,
                     state="IN_REVIEW",

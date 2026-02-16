@@ -15,8 +15,26 @@ class AnalysisService:
     def analyze_post(self, raw_text: str) -> dict:
         try:
             parsed = self.provider.analyze(raw_text)
-            validated = AnalysisResult(**parsed)
+
+            # Normalize all scalar fields to string if not None
+            normalized = {}
+
+            for key, value in parsed.items():
+
+                # If list → take first element
+                if isinstance(value, list):
+                    value = value[0] if value else None
+
+                # Convert non-string scalars to string
+                if value is not None and not isinstance(value, str):
+                    value = str(value)
+
+                normalized[key] = value
+
+            validated = AnalysisResult(**normalized)
             return validated.model_dump()
+
         except Exception as exc:
             logger.error("Invalid LLM JSON response error=%s", exc)
             raise ValueError("Invalid LLM JSON response") from exc
+

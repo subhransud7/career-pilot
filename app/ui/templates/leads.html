@@ -18,9 +18,23 @@
 </form>
 <div id="bulk-status" class="mb-3"></div>
 
+<button class="btn btn-danger mb-2" onclick="toggleBulkMode()">
+  Bulk Delete
+</button>
+
+<form id="bulk-delete-form"
+      method="post"
+      action="/leads/bulk-delete"
+      style="display:none;">
+  <button class="btn btn-danger mb-2">
+    Confirm Delete
+  </button>
+</form>
+
 <table class="table table-hover">
   <thead>
     <tr>
+      <th id="bulk-column" style="display:none;">Select</th>
       <th>Company</th>
       <th>Role</th>
       <th>Email</th>
@@ -34,8 +48,19 @@
   <tbody>
   {% for lead in leads %}
     <tr>
+      <td class="bulk-checkbox" style="display:none;">
+        <input type="checkbox" name="lead_ids" value="{{ lead.id }}" form="bulk-delete-form">
+      </td>
       <td>{{ lead.company or '-' }}</td>
-      <td><a href="#" hx-get="/leads/{{ lead.id }}" hx-target="#detail" hx-swap="innerHTML">{{ lead.role or '-' }}</a></td>
+      <td>
+        <a href="#"
+           hx-get="/leads/{{ lead.id }}"
+           hx-target="closest tr"
+           hx-swap="afterend"
+           hx-on="click: closeExistingDetail()">
+           {{ lead.role or '-' }}
+        </a>
+      </td>
       <td>{{ lead.email or '-' }}</td>
       <td><a href="{{ lead.post_link }}" target="_blank">Open</a></td>
       <td>{{ lead.date_posted or '-' }}</td>
@@ -50,11 +75,44 @@
           <input type="hidden" name="next_state" value="REJECTED" />
           <button class="btn btn-sm btn-outline-danger">Reject</button>
         </form>
+        <form hx-post="/leads/{{ lead.id }}/state"
+              hx-target="#detail-status"
+              hx-swap="innerHTML">
+          <input type="hidden" name="next_state" value="MAILED" />
+          <button class="btn btn-sm btn-outline-primary">
+            Mark Mailed
+          </button>
+        </form>
+        <form hx-post="/leads/{{ lead.id }}/delete"
+              hx-target="closest tr"
+              hx-swap="outerHTML">
+          <button class="btn btn-sm btn-outline-danger">🗑</button>
+        </form>
       </td>
     </tr>
   {% endfor %}
   </tbody>
 </table>
 <div id="detail-status"></div>
-<div id="detail" class="mt-4"></div>
+<script>
+function closeExistingDetail() {
+  const existing = document.querySelector(".lead-detail-row");
+  if (existing) {
+    existing.remove();
+  }
+}
+
+function toggleBulkMode() {
+  const checkboxes = document.querySelectorAll(".bulk-checkbox");
+  const header = document.getElementById("bulk-column");
+  const form = document.getElementById("bulk-delete-form");
+
+  checkboxes.forEach(cb => {
+    cb.style.display = cb.style.display === "none" ? "table-cell" : "none";
+  });
+
+  header.style.display = header.style.display === "none" ? "table-cell" : "none";
+  form.style.display = form.style.display === "none" ? "block" : "none";
+}
+</script>
 {% endblock %}
