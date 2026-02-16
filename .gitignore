@@ -205,3 +205,20 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Environment
+.env
+
+# Database
+job_agent.db
+
+# JSON
+gmail_token.json
+service_account.json
+
+# Mac
+.DS_Store
+
+# Config
+app/core/config.py
+

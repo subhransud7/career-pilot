@@ -1,47 +1,40 @@
 {% extends "base.html" %}
 {% block content %}
-
-<h2>Dashboard</h2>
-
-<div class="row">
-    <div class="col-md-4">
-        <div class="card p-3">
-            <h5>Total Leads</h5>
-            <h3>{{ total }}</h3>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card p-3">
-            <h5>New</h5>
-            <h3>{{ new }}</h3>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card p-3">
-            <h5>Mailed</h5>
-            <h3>{{ mailed }}</h3>
-        </div>
-    </div>
+<h3>Dashboard</h3>
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="card p-3"><small>Total Leads</small><h4>{{ total_leads }}</h4></div></div>
+  <div class="col-md-3"><div class="card p-3"><small>Visited Links</small><h4>{{ total_visited }}</h4></div></div>
+  <div class="col-md-3"><div class="card p-3"><small>Session Status</small><h6>SequentialProcessor</h6></div></div>
+  <div class="col-md-3"><div class="card p-3"><small>Gmail Status</small><h6>{{ gmail_status }}</h6></div></div>
 </div>
 
-<a href="/review" class="btn btn-primary mt-4">Review Leads</a>
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card p-3">
+      <h5>Run Search</h5>
+      <form hx-post="/run-search" hx-target="#run-result" hx-swap="innerHTML">
+        <label class="form-label">Keywords</label>
+        <input class="form-control mb-2" name="keywords" required />
+        <label class="form-label">Last N Days</label>
+        <input class="form-control mb-2" type="number" name="days" value="2" min="1" required />
+        <label class="form-label">Max Results</label>
+        <input class="form-control mb-3" type="number" name="max_results" value="10" min="1" />
+        <button class="btn btn-primary">Run</button>
+        <span class="htmx-indicator ms-2">Running...</span>
+      </form>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card p-3">
+      <h5>Upload CSV</h5>
+      <form hx-post="/upload-csv" hx-target="#run-result" hx-swap="innerHTML" enctype="multipart/form-data">
+        <input type="file" class="form-control mb-3" name="file" accept=".csv" required />
+        <button class="btn btn-outline-primary">Upload</button>
+        <span class="htmx-indicator ms-2">Processing...</span>
+      </form>
+    </div>
+  </div>
+</div>
 
-<hr>
-<h4>Run Aggregation</h4>
-
-<form method="post" action="/aggregate">
-    <input type="text" name="keywords" placeholder="Keywords"
-           class="form-control mb-2" required>
-
-    <input type="number" name="days" value="7"
-           class="form-control mb-2" required>
-
-    <input type="number" name="max_results" value="10"
-           class="form-control mb-2">
-
-    <button class="btn btn-success">Run</button>
-</form>
-
+<div id="run-result" class="mt-4"></div>
 {% endblock %}

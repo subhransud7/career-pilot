@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>Leads</h3>
+  <form class="d-flex gap-2" method="get" action="/leads">
+    <select class="form-select" name="state">
+      <option value="" {% if not state %}selected{% endif %}>All</option>
+      {% for s in ["IN_REVIEW","APPROVED","REJECTED","MAILED","MAIL_FAILED","WAITING_RESPONSE","RESPONDED","ARCHIVED"] %}
+      <option value="{{ s }}" {% if state == s %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-outline-secondary">Filter</button>
+  </form>
+</div>
+
+<form hx-post="/leads/bulk-send" hx-target="#bulk-status" hx-swap="innerHTML" class="mb-3">
+  <button class="btn btn-success">Bulk Send (APPROVED)</button>
+</form>
+<div id="bulk-status" class="mb-3"></div>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Company</th>
+      <th>Role</th>
+      <th>Email</th>
+      <th>Post Link</th>
+      <th>Date Posted</th>
+      <th>Score</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for lead in leads %}
+    <tr>
+      <td>{{ lead.company or '-' }}</td>
+      <td><a href="#" hx-get="/leads/{{ lead.id }}" hx-target="#detail" hx-swap="innerHTML">{{ lead.role or '-' }}</a></td>
+      <td>{{ lead.email or '-' }}</td>
+      <td><a href="{{ lead.post_link }}" target="_blank">Open</a></td>
+      <td>{{ lead.date_posted or '-' }}</td>
+      <td><span class="badge bg-{{ score_class(lead.score) }}">{{ lead.score or 0 }}</span></td>
+      <td><span class="badge bg-secondary">{{ lead.state }}</span></td>
+      <td class="d-flex gap-1">
+        <form hx-post="/leads/{{ lead.id }}/state" hx-target="#detail-status" hx-swap="innerHTML">
+          <input type="hidden" name="next_state" value="APPROVED" />
+          <button class="btn btn-sm btn-outline-success">Approve</button>
+        </form>
+        <form hx-post="/leads/{{ lead.id }}/state" hx-target="#detail-status" hx-swap="innerHTML">
+          <input type="hidden" name="next_state" value="REJECTED" />
+          <button class="btn btn-sm btn-outline-danger">Reject</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<div id="detail-status"></div>
+<div id="detail" class="mt-4"></div>
+{% endblock %}

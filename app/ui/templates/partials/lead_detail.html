@@ -1,0 +1,29 @@
+{% if lead %}
+<div class="card p-3">
+  <h5>{{ lead.company or '-' }} - {{ lead.role or '-' }}</h5>
+  <p><strong>State:</strong> {{ lead.state }}</p>
+  <p><strong>Email:</strong> {{ lead.email or '-' }}</p>
+  <p><strong>Original Link:</strong> <a href="{{ lead.post_link }}" target="_blank">Open Post</a></p>
+  {% if lead.recruiter_profile_link %}
+  <p><strong>Recruiter Profile:</strong> <a href="{{ lead.recruiter_profile_link }}" target="_blank">Open Profile</a></p>
+  {% endif %}
+
+  <h6 class="mt-3">Edit Fields</h6>
+  <form hx-post="/leads/{{ lead.id }}/edit" hx-target="#detail-status" hx-swap="innerHTML">
+    <label class="form-label">Company</label>
+    <input class="form-control mb-2" name="company" value="{{ lead.company or '' }}" />
+    <label class="form-label">Email</label>
+    <input class="form-control mb-2" name="email" value="{{ lead.email or '' }}" />
+    <button class="btn btn-outline-secondary btn-sm">Save</button>
+  </form>
+
+  <h6 class="mt-3">Email Draft</h6>
+  <pre>{{ lead.email_body or '-' }}</pre>
+
+  <form hx-post="/leads/{{ lead.id }}/send-mail" hx-target="#detail-status" hx-swap="innerHTML">
+    <button class="btn btn-primary btn-sm">Send Mail</button>
+  </form>
+</div>
+{% else %}
+<div class="alert alert-warning">Lead not found</div>
+{% endif %}
