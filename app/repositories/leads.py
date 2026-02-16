@@ -13,10 +13,14 @@ class LeadsRepository:
         return row
 
     def list(self, state: str | None = None):
+        query = self.base_query(state=state)
+        return query.order_by(Lead.created_at.desc()).all()
+
+    def base_query(self, state: str | None = None):
         query = self.db.query(Lead)
         if state:
             query = query.filter(Lead.state == state)
-        return query.order_by(Lead.created_at.desc()).all()
+        return query
 
     def get(self, lead_id: int):
         return self.db.query(Lead).filter(Lead.id == lead_id).first()

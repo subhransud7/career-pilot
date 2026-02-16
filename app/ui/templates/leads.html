@@ -31,6 +31,26 @@
   </button>
 </form>
 
+<div class="d-flex justify-content-end mb-2 gap-2">
+  {% if page > 1 %}
+  <a class="btn btn-outline-secondary btn-sm"
+     href="/leads?page={{ page - 1 }}{% if state %}&state={{ state }}{% endif %}">
+     Prev
+  </a>
+  {% endif %}
+
+  <span class="align-self-center">
+    Page {{ page }} of {{ total_pages }}
+  </span>
+
+  {% if page < total_pages %}
+  <a class="btn btn-outline-secondary btn-sm"
+     href="/leads?page={{ page + 1 }}{% if state %}&state={{ state }}{% endif %}">
+     Next
+  </a>
+  {% endif %}
+</div>
+
 <table class="table table-hover">
   <thead>
     <tr>

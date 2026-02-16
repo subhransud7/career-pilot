@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.core.config import get_settings
 from app.core.database import get_db_session
@@ -27,18 +27,49 @@ def score_class(score: int | None) -> str:
 
 
 @router.get("", response_class=HTMLResponse)
-def list_leads(request: Request, state: str | None = None, db: Session = Depends(get_db_session)):
+def list_leads(
+    request: Request,
+    state: str | None = None,
+    page: int = 1,
+    db: Session = Depends(get_db_session),
+):
+    PAGE_SIZE = 20
     repo = LeadsRepository(db)
-    leads = repo.list(state=state)
+
+    query = repo.base_query(state=state)
+
+    total = query.count()
+    leads = (
+        query
+        .order_by(Lead.created_at.desc())
+        .offset((page - 1) * PAGE_SIZE)
+        .limit(PAGE_SIZE)
+        .all()
+    )
+
+    total_pages = (total + PAGE_SIZE - 1) // PAGE_SIZE
+
     return templates.TemplateResponse(
         "leads.html",
-        {"request": request, "leads": leads, "score_class": score_class, "state": state},
+        {
+            "request": request,
+            "leads": leads,
+            "score_class": score_class,
+            "state": state,
+            "page": page,
+            "total_pages": total_pages,
+        },
     )
 
 
 @router.get("/{lead_id}", response_class=HTMLResponse)
 def lead_detail(lead_id: int, request: Request, db: Session = Depends(get_db_session)):
-    lead = LeadsRepository(db).get(lead_id)
+    lead = (
+        db.query(Lead)
+        .options(joinedload(Lead.visited_link))
+        .filter(Lead.id == lead_id)
+        .first()
+    )
     return templates.TemplateResponse("partials/lead_detail.html", {"request": request, "lead": lead})
 
 
