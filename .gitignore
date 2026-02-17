@@ -215,6 +215,13 @@ job_agent.db
 # JSON
 gmail_token.json
 service_account.json
+gmail_credentials.json
+linkedin_session.json
+
+# Local auth/session helper scripts (keep out of public repo)
+gmail_token.py
+save_linked_session.py
+save_linkedin_session.py
 
 # Mac
 .DS_Store
@@ -222,3 +229,6 @@ service_account.json
 # Config
 app/core/config.py
 
+# Local resumes
+resume.pdf
+resume_backend.pdf
